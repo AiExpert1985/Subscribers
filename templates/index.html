@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+	<!-- Manual CSS -->
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+
+	<title> Subscribers </title>
+</head>
+
+<body>
+	{% for k,v in test.items() %}
+		<br>{{k}} : {{v}}
+	{% endfor %}
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<script type="text/javascript" src="{{url_for('static', filename='js/jquery.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/popper.min.js')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
+
+	<!-- handlebars templating language -->
+    <script type="text/javascript" src="{{url_for('static', filename='js/handlebars.min.js')}}"></script>
+    <!-- Manual JavaScript -->
+    <script type="text/javascript" src="{{url_for('static', filename='js/script.js')}}"></script>
+
+</body>
+</html>
+
+
