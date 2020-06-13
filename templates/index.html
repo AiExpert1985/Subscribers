@@ -14,9 +14,9 @@
 </head>
 
 <body>
-	{% for k,v in test.items() %}
-		<br>{{k}} : {{v}}
-	{% endfor %}
+	<p id="sub">
+		to add data here ...
+	</p>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 	<script type="text/javascript" src="{{url_for('static', filename='js/jquery.min.js')}}"></script>
@@ -25,6 +25,7 @@
 
 	<!-- handlebars templating language -->
     <script type="text/javascript" src="{{url_for('static', filename='js/handlebars.min.js')}}"></script>
+
     <!-- Manual JavaScript -->
     <script type="text/javascript" src="{{url_for('static', filename='js/script.js')}}"></script>
 
