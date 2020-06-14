@@ -2,3 +2,4 @@ venv/
 sqlite/
 __pycache__/
 .idea/
+db/

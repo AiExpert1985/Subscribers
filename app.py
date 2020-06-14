@@ -4,30 +4,33 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 # app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sqlite/subscribers.sqlite3'
 # app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = 'access+pyodbc://@sqlite/subscribers.sqlite3'
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db = SQLAlchemy()
 db.init_app(app)
 
 class Subscriber(db.Model):
     __tablename__ = "subscribers"
     id = db.Column(db.Integer, primary_key=True)
-    total = db.Column(db.Integer, nullable=True)
-    other = db.Column(db.Integer, nullable=True)
-    debts = db.Column(db.Integer, nullable=True)
-    counter = db.Column(db.Integer, nullable=True)
-    breaker = db.Column(db.Integer, nullable=True)
+    total = db.Column(db.String, nullable=True)
+    other = db.Column(db.String, nullable=True)
+    debts = db.Column(db.String, nullable=True)
+    counter = db.Column(db.String, nullable=True)
+    breaker = db.Column(db.String, nullable=True)
     curr_reading_at = db.Column(db.String, nullable=True)
-    curr_reading = db.Column(db.Integer, nullable=True)
+    curr_reading = db.Column(db.String, nullable=True)
     prev_reading_at = db.Column(db.String, nullable=True)
-    prev_reading = db.Column(db.Integer, nullable=True)
+    prev_reading = db.Column(db.String, nullable=True)
     name = db.Column(db.String, nullable=True)
     account = db.Column(db.String, nullable=True)
-    subscription = db.Column(db.Integer, nullable=True)
+    subscription = db.Column(db.String, nullable=True)
     address = db.Column(db.String, nullable=True)
-    house_number = db.Column(db.Integer, nullable=True)
+    house_number = db.Column(db.String, nullable=True)
     meem_yaa = db.Column(db.String, nullable=True)
-    record = db.Column(db.Integer, nullable=True)
-    page = db.Column(db.Integer, nullable=True)
+    record = db.Column(db.String, nullable=True)
+    page = db.Column(db.String, nullable=True)
     meem_yaa_at = db.Column(db.String, nullable=True)
 
     @property
@@ -108,6 +111,7 @@ def index():
 
 @app.route("/subscribers")
 def subscribers():
+    scanFile()
     return jsonify([x.serialize for x in Subscriber.query.all()])
 
 
