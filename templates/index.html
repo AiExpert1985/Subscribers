@@ -14,17 +14,32 @@
 </head>
 
 <body>
-	<p id="sub">
-		to add data here ... {{test}}
-	</p>
+    <div class="container-fluid">
+        <div class="row justify-content-center m-4">
+            <div class="col-12 text-center">
+                <img src="{{url_for('static', filename='img/gis.jpg')}}" width="1000px" border-radius="25px">
+            </div>
+            <form class="md-form" action="#">
+                <div class="file-field">
+                    <div class="btn btn-primary btn-sm float-left">
+                        <span>Choose files</span>
+                        <input type="file" multiple>
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text" placeholder="Upload one or more files">
+                    </div>
+                </div>
+            </form>
+            <div class="col-12 text-center mt-4">
+                <a class="btn " href="{{url_for('download')}}" role="button"><img src="{{url_for('static', filename='img/save.png')}}" width=45 >حفظ النتائج</a>
+            </div>
+        </div>
+    </div>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 	<script type="text/javascript" src="{{url_for('static', filename='js/jquery.min.js')}}"></script>
 	<script type="text/javascript" src="{{url_for('static', filename='js/popper.min.js')}}"></script>
 	<script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
-
-	<!-- handlebars templating language -->
-    <script type="text/javascript" src="{{url_for('static', filename='js/handlebars.min.js')}}"></script>
 
     <!-- Manual JavaScript -->
     <script type="text/javascript" src="{{url_for('static', filename='js/script.js')}}"></script>

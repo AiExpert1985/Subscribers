@@ -1,9 +1,13 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 # app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sqlite/subscribers.sqlite3'
 # app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+UPLOAD_FOLDER = './db'
+ALLOWED_EXTENSIONS = set(['txt'])
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -58,6 +62,11 @@ class Subscriber(db.Model):
         }
 
 def scanFile():
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+
     layout = {
         "line_one": [("total", "other", "debts", "counter", "breaker", "curr_reading_at", "curr_reading",
                       "prev_reading_at", "prev_reading", "name", "account"),
@@ -68,11 +77,12 @@ def scanFile():
         "title": [("meem_yaa", "record", "page", "meem_yaa_at"),
                   ((43, 49), (94, 97), (113, 117), (120, -1))]
     }
+
     try:
         input_file = open("subscribers.txt", encoding='utf8')
         lines = input_file.readlines()
     except:
-        print("error while reading input file")
+        exit(1)
     scanDict = {}
     for newLine in lines:
         if "جدول القوائم المطبوعة" in newLine:
@@ -95,7 +105,7 @@ def scanFile():
                     try:
                         kwQuery[db_col_name] = db_col_data.strip()
                     except:
-                        print("Error while reading line values")
+                        exit(1)
             if scanDict:
                 db.session.add(Subscriber(**kwQuery))
             del scanDict["line_one"]
@@ -103,16 +113,18 @@ def scanFile():
                 del scanDict["line_two"]
     db.session.commit()
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 @app.route("/subscribers")
 def subscribers():
     scanFile()
     return jsonify([x.serialize for x in Subscriber.query.all()])
+
+@app.route("/download")
+def download():
+    return send_from_directory(app.config['UPLOAD_FOLDER'], "subscribers.accdb", as_attachment=True)
 
 
 if __name__ == "__main__":
