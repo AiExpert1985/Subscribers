@@ -10,29 +10,27 @@
 	<!-- Manual CSS -->
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
 
-	<title> Subscribers </title>
+	<title> معلومات المشتركين </title>
 </head>
 
 <body>
+{{test}}
     <div class="container-fluid">
-        <div class="row justify-content-center m-4">
-            <div class="col-12 text-center">
-                <img src="{{url_for('static', filename='img/gis.jpg')}}" width="1000px" border-radius="25px">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center m-5">
+                <img src="{{url_for('static', filename='img/gis.jpg')}}" width="1000px">
             </div>
-            <form class="md-form" action="#">
-                <div class="file-field">
-                    <div class="btn btn-primary btn-sm float-left">
-                        <span>Choose files</span>
-                        <input type="file" multiple>
-                    </div>
-                    <div class="file-path-wrapper">
-                        <input class="file-path validate" type="text" placeholder="Upload one or more files">
+            <form action="{{url_for('download')}}" method="post" class="m-5">
+                <div class="form-group m-5">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="file" name="file">
+                        <label class="custom-file-label translate" for="file" data-key="file_upload">...  اختر ملف المشتركين  </label>
                     </div>
                 </div>
+                <div class="form-group text-center m-5">
+                    <button type="Submit" class="btn btn-info btn-lg btn-block"> تحميل </button>
+                </div>
             </form>
-            <div class="col-12 text-center mt-4">
-                <a class="btn " href="{{url_for('download')}}" role="button"><img src="{{url_for('static', filename='img/save.png')}}" width=45 >حفظ النتائج</a>
-            </div>
         </div>
     </div>
 

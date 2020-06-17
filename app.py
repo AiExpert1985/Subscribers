@@ -1,16 +1,16 @@
-from flask import Flask, render_template, jsonify, send_from_directory
+from flask import Flask, render_template, jsonify, send_from_directory, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-# app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sqlite/subscribers.sqlite3'
-# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sqlite/subscribers.sqlite3'
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 UPLOAD_FOLDER = './db'
-ALLOWED_EXTENSIONS = set(['txt'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = set(['txt'])
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy()
 db.init_app(app)
@@ -61,7 +61,7 @@ class Subscriber(db.Model):
             'meem_yaa_at': self.meem_yaa_at
         }
 
-def scanFile():
+def scanFile(newFile):
 
     with app.app_context():
         db.drop_all()
@@ -75,11 +75,12 @@ def scanFile():
         "line_two": [("subscription", "address", "house_number"),
                      ((0, 9), (9, 35), (35, -1))],
         "title": [("meem_yaa", "record", "page", "meem_yaa_at"),
-                  ((43, 49), (94, 97), (113, 117), (120, -1))]
+                  ((39, 45), (90, 94), (108, 114), (116, -1))]
     }
 
     try:
-        input_file = open("subscribers.txt", encoding='utf8')
+        input_file = file.read()
+        return render_template("index.html", test=type(input_file))
         lines = input_file.readlines()
     except:
         exit(1)
@@ -117,15 +118,11 @@ def scanFile():
 def index():
     return render_template("index.html")
 
-@app.route("/subscribers")
-def subscribers():
-    scanFile()
-    return jsonify([x.serialize for x in Subscriber.query.all()])
-
-@app.route("/download")
+@app.route("/download", methods=["POST"])
 def download():
+    file = request.files['file']
+    scanFile(file)
     return send_from_directory(app.config['UPLOAD_FOLDER'], "subscribers.accdb", as_attachment=True)
-
 
 if __name__ == "__main__":
     app.run(debug=True)
