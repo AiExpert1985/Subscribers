@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify, send_from_directory, request
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sqlite/subscribers.sqlite3'
@@ -32,6 +33,7 @@ class Subscriber(db.Model):
     subscription = db.Column(db.String, nullable=True)
     address = db.Column(db.String, nullable=True)
     house_number = db.Column(db.String, nullable=True)
+    unknwon = db.Column(db.String, nullable=True)
     meem_yaa = db.Column(db.String, nullable=True)
     record = db.Column(db.String, nullable=True)
     page = db.Column(db.String, nullable=True)
@@ -55,35 +57,37 @@ class Subscriber(db.Model):
             'subscription': self.subscription,
             'address': self.address,
             'house_number': self.house_number,
+            'unknown': self.unknown,
             'meem_yaa': self.meem_yaa,
             'record': self.record,
             'page': self.page,
             'meem_yaa_at': self.meem_yaa_at
         }
 
-def scanFile(newFile):
+def log_error(error):
+    errorLog = open("error_log.txt","a")
+    errorLog.write(f"{error}\n{datetime.now()}\n \n")
+    errorLog.close()
 
+def scanFile():
     with app.app_context():
         db.drop_all()
         db.create_all()
-
     layout = {
         "line_one": [("total", "other", "debts", "counter", "breaker", "curr_reading_at", "curr_reading",
                       "prev_reading_at", "prev_reading", "name", "account"),
                      ((0, 14), (14, 28), (28, 42), (42, 50), (50, 57), (57, 69), (69, 77), (77, 89), (89, 97),
                       (-33, -9), (-9, -1))],
-        "line_two": [("subscription", "address", "house_number"),
-                     ((0, 9), (9, 35), (35, -1))],
+        "line_two": [("subscription", "address", "house_number", "unknwon"),
+                     ((0, 9), (9, 34), (35, 52), (52, -1))],
         "title": [("meem_yaa", "record", "page", "meem_yaa_at"),
                   ((39, 45), (90, 94), (108, 114), (116, -1))]
     }
-
     try:
-        input_file = file.read()
-        return render_template("index.html", test=type(input_file))
+        input_file = open("files/group_1.TXT", encoding="utf-8")
         lines = input_file.readlines()
     except:
-        exit(1)
+        log_error("error while read the subscribers info file")
     scanDict = {}
     for newLine in lines:
         if "جدول القوائم المطبوعة" in newLine:
@@ -106,7 +110,7 @@ def scanFile(newFile):
                     try:
                         kwQuery[db_col_name] = db_col_data.strip()
                     except:
-                        exit(1)
+                        log_error("error while read the inserting subscribers data to the database")
             if scanDict:
                 db.session.add(Subscriber(**kwQuery))
             del scanDict["line_one"]
@@ -116,12 +120,12 @@ def scanFile(newFile):
 
 @app.route("/")
 def index():
+    scanFile()
     return render_template("index.html")
 
 @app.route("/download", methods=["POST"])
 def download():
-    file = request.files['file']
-    scanFile(file)
+    # file = request.files['file']
     return send_from_directory(app.config['UPLOAD_FOLDER'], "subscribers.accdb", as_attachment=True)
 
 if __name__ == "__main__":
