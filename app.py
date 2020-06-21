@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, send_from_directory, request
+from flask import Flask, render_template, send_from_directory, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -6,9 +6,8 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sqlite/subscribers.sqlite3'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-UPLOAD_FOLDER = './db'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = set(['txt'])
+app.config['UPLOAD_FOLDER'] = './db'
+ALLOWED_EXTENSIONS = 'txt'
 
 # app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
 # app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -65,9 +64,12 @@ class Subscriber(db.Model):
         }
 
 def log_error(error):
-    errorLog = open("error_log.txt","a")
-    errorLog.write(f"{error}\n{datetime.now()}\n \n")
-    errorLog.close()
+    try:
+        file_name = "error_log.txt"
+        with open(file_name, "a") as errors_log:
+            errors_log.write(f"{error}\n{datetime.now()}\n \n")
+    except Exception as e:
+        "do nothing"
 
 def scanFile():
     with app.app_context():
@@ -84,39 +86,43 @@ def scanFile():
                   ((39, 45), (90, 94), (108, 114), (116, -1))]
     }
     try:
-        input_file = open("files/group_1.TXT", encoding="utf-8")
-        lines = input_file.readlines()
-    except:
-        log_error("error while read the subscribers info file")
+        file_name = "files/group_1.TXT"
+        with open(file_name, encoding="utf-8") as input_file:
+            lines = input_file.readlines()
+    except Exception as e:
+        log_error(e)
     scanDict = {}
-    for newLine in lines:
-        if "جدول القوائم المطبوعة" in newLine:
-            scanDict["title"] = newLine
-            continue
-        if newLine.count('/') >= 2 and len(newLine) > 100:
-            scanDict["line_one"] = newLine
-            continue
-        if scanDict.get("line_one") and (newLine[0] == " " and not newLine.count('*') >= 1):
-            scanDict["line_two"] = newLine
-        if scanDict.get("line_one"):
-            kwQuery = {}
-            for line_name, line_data in scanDict.items():
-                col_names, col_indexes = layout[line_name]
-                for n, indexes in enumerate(col_indexes):
-                    db_col_name = col_names[n]
-                    start = indexes[0]
-                    end = indexes[1]
-                    db_col_data = line_data[start:end]
-                    try:
-                        kwQuery[db_col_name] = db_col_data.strip()
-                    except:
-                        log_error("error while read the inserting subscribers data to the database")
-            if scanDict:
-                db.session.add(Subscriber(**kwQuery))
-            del scanDict["line_one"]
-            if scanDict.get("line_two"):
-                del scanDict["line_two"]
-    db.session.commit()
+    try:
+        for newLine in lines:
+            if "جدول القوائم المطبوعة" in newLine:
+                scanDict["title"] = newLine
+                continue
+            if newLine.count('/') >= 2 and len(newLine) > 100:
+                scanDict["line_one"] = newLine
+                continue
+            if scanDict.get("line_one") and (newLine[0] == " " and not newLine.count('*') >= 1):
+                scanDict["line_two"] = newLine
+            if scanDict.get("line_one"):
+                kwQuery = {}
+                for line_name, line_data in scanDict.items():
+                    col_names, col_indexes = layout[line_name]
+                    for n, indexes in enumerate(col_indexes):
+                        db_col_name = col_names[n]
+                        start = indexes[0]
+                        end = indexes[1]
+                        db_col_data = line_data[start:end]
+                        try:
+                            kwQuery[db_col_name] = db_col_data.strip()
+                        except:
+                            log_error("error while read the inserting subscribers data to the database")
+                if scanDict:
+                    db.session.add(Subscriber(**kwQuery))
+                del scanDict["line_one"]
+                if scanDict.get("line_two"):
+                    del scanDict["line_two"]
+        db.session.commit()
+    except Exception as e:
+        log_error(e)
 
 @app.route("/")
 def index():
