@@ -17,24 +17,15 @@
 {{test}}
     <div class="container-fluid">
         <div class="row justify-content-center">
-            <div class="col-12 text-center m-4">
+            <div class="col-12 text-center m-5">
                 <img src="{{url_for('static', filename='img/gis.jpg')}}" width="1000px">
             </div>
-<!--            <form action="{{url_for('download')}}" method="post" class="mt-5">-->
-<!--                <div class="form-group">-->
-<!--                    <div class="custom-file">-->
-<!--                        <input type="file" class="custom-file-input" id="file" name="file">-->
-<!--                        <label class="custom-file-label translate" for="file" data-key="file_upload">...  اختر ملف المشتركين  </label>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--&lt;!&ndash;                <textarea class="form-control form-control-sm" id="input-note" rows="2" name="note"></textarea>&ndash;&gt;-->
-<!--                <div class="form-group text-center mt-5">-->
-<!--                    <button type="Submit" class="btn btn-info btn-lg btn-block"> تحميل </button>-->
-<!--                </div>-->
-<!--            </form>-->
-            <form method="POST" enctype="multipart/form-data" action="{{url_for('download')}}">
-                 <input type="file" name="file[]" multiple="">
-                 <input type="submit" value="add">
+            <form method="POST" enctype="multipart/form-data" action="{{url_for('download')}}" class="mt-5">
+                <div class="custom-file mb-4">
+                  <input type="file" class="custom-file-input" id="customFile" name="file[]" multiple="">
+                  <label class="custom-file-label" for="customFile">... اختيار الملفات </label>
+                </div>
+                <button class="btn btn-info btn-lg btn-block mt-5" type="submit">تحميل الملفات </button>
             </form>
         </div>
     </div>

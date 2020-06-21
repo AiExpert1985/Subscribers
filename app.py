@@ -144,6 +144,10 @@ def download():
         temp_file.save(os.path.join(app.config["UPLOAD_FOLDER"], temp_file.filename))
         temp_names.append(temp_file.filename)
     scan_file(temp_names)
+    # removing files after finishing reading them
+    for temp_name in temp_names:
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'],temp_name))
+    # os.system('copy hhh.txt mmm.txt') # this executes in command line !
     return render_template("index.html", test="done")
     return send_from_directory(app.config['UPLOAD_FOLDER'], "subscribers.accdb", as_attachment=True)
 
