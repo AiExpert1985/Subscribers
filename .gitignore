@@ -3,3 +3,4 @@ sqlite/
 __pycache__/
 .idea/
 db/
+upload/

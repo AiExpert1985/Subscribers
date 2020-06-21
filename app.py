@@ -1,13 +1,15 @@
 from flask import Flask, render_template, send_from_directory, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sqlite/subscribers.sqlite3'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-app.config['UPLOAD_FOLDER'] = './db'
-ALLOWED_EXTENSIONS = 'txt'
+UPLOAD_FOLDER = './upload'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = set(['txt'])
 
 # app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
 # app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -37,6 +39,7 @@ class Subscriber(db.Model):
     record = db.Column(db.String, nullable=True)
     page = db.Column(db.String, nullable=True)
     meem_yaa_at = db.Column(db.String, nullable=True)
+    hissab = db.Column(db.String, nullable=True)
 
     @property
     def serialize(self):
@@ -60,8 +63,10 @@ class Subscriber(db.Model):
             'meem_yaa': self.meem_yaa,
             'record': self.record,
             'page': self.page,
-            'meem_yaa_at': self.meem_yaa_at
+            'meem_yaa_at': self.meem_yaa_at,
+            'hissab': self.hissab
         }
+
 
 def log_error(error):
     try:
@@ -71,10 +76,8 @@ def log_error(error):
     except Exception as e:
         "do nothing"
 
-def scanFile():
-    with app.app_context():
-        db.drop_all()
-        db.create_all()
+
+def scan_file(file_names):
     layout = {
         "line_one": [("total", "other", "debts", "counter", "breaker", "curr_reading_at", "curr_reading",
                       "prev_reading_at", "prev_reading", "name", "account"),
@@ -85,14 +88,18 @@ def scanFile():
         "title": [("meem_yaa", "record", "page", "meem_yaa_at"),
                   ((39, 45), (90, 94), (108, 114), (116, -1))]
     }
-    try:
-        file_name = "files/group_1.TXT"
-        with open(file_name, encoding="utf-8") as input_file:
+    # del previous database content, to prepare it for the new files
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+    for file_name in file_names:
+        try:
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'],file_name)
+            input_file = open(file_path, encoding="utf-8")
             lines = input_file.readlines()
-    except Exception as e:
-        log_error(e)
-    scanDict = {}
-    try:
+        except:
+            log_error(f"error while read {file_name}")
+        scanDict = {}
         for newLine in lines:
             if "جدول القوائم المطبوعة" in newLine:
                 scanDict["title"] = newLine
@@ -115,24 +122,31 @@ def scanFile():
                             kwQuery[db_col_name] = db_col_data.strip()
                         except:
                             log_error("error while read the inserting subscribers data to the database")
+                kwQuery['hissab'] = f"{kwQuery['record']}{kwQuery['account'][2:]}"
                 if scanDict:
                     db.session.add(Subscriber(**kwQuery))
                 del scanDict["line_one"]
                 if scanDict.get("line_two"):
                     del scanDict["line_two"]
-        db.session.commit()
-    except Exception as e:
-        log_error(e)
+    db.session.commit()
+
 
 @app.route("/")
 def index():
-    scanFile()
+    # scan_file()
     return render_template("index.html")
+
 
 @app.route("/download", methods=["POST"])
 def download():
-    # file = request.files['file']
+    temp_names = []
+    for temp_file in request.files.getlist("file[]"):
+        temp_file.save(os.path.join(app.config["UPLOAD_FOLDER"], temp_file.filename))
+        temp_names.append(temp_file.filename)
+    scan_file(temp_names)
+    return render_template("index.html", test="done")
     return send_from_directory(app.config['UPLOAD_FOLDER'], "subscribers.accdb", as_attachment=True)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
