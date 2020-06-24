@@ -17,15 +17,17 @@
 {{test}}
     <div class="container-fluid">
         <div class="row justify-content-center">
-            <div class="col-12 text-center m-5">
-                <img src="{{url_for('static', filename='img/gis.jpg')}}" width="1000px">
+            <div class="col-12 text-center m-4">
+                <img src="{{url_for('static', filename='img/gis.jpg')}}" width="900px">
             </div>
-            <form method="POST" enctype="multipart/form-data" action="{{url_for('download')}}" class="mt-5">
-                <div class="custom-file mb-4">
-                  <input type="file" class="custom-file-input" id="customFile" name="file[]" multiple="">
-                  <label class="custom-file-label" for="customFile">... اختيار الملفات </label>
+            <form method="POST" enctype="multipart/form-data" action="{{url_for('download')}}" class="mt-5" >
+                <div class="custom-file mb-4 text-center">
+                    <input type="file" class="custom-file-input" id="customFile" name="file[]" multiple="">
+                    <label id="browser-label" class="custom-file-label" for="customFile">... اختيار الملفات </label>
+                    <p id="user-message" class="mt-3"></p>
+                    <img id="loading-img" src="{{url_for('static', filename='img/tenor.gif')}}" width="30px">
                 </div>
-                <button class="btn btn-info btn-lg btn-block mt-5" type="submit">تحميل الملفات </button>
+                <button id='submit-button' class="btn btn-danger btn-lg btn-block mt-5" type="submit"> تحميل الملفات </button>
             </form>
         </div>
     </div>
@@ -36,7 +38,7 @@
 <!--	<script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>-->
 
     <!-- Manual JavaScript -->
-<!--    <script type="text/javascript" src="{{url_for('static', filename='js/script.js')}}"></script>-->
+    <script type="text/javascript" src="{{url_for('static', filename='js/script.js')}}"></script>
 
 </body>
 </html>

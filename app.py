@@ -4,15 +4,15 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///sqlite/subscribers.sqlite3'
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-UPLOAD_FOLDER = './upload'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = './upload'
+app.config['DB_FOLDER'] = './db'
 ALLOWED_EXTENSIONS = set(['txt'])
 
-# app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
-# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+os.system('copy db\subscribers1.accdb db\subscribers.accdb')  # this executes in command line !
+
+# app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db/subscribers.sqlite3'
+app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy()
 db.init_app(app)
@@ -133,7 +133,6 @@ def scan_file(file_names):
 
 @app.route("/")
 def index():
-    # scan_file()
     return render_template("index.html")
 
 
@@ -147,9 +146,7 @@ def download():
     # removing files after finishing reading them
     for temp_name in temp_names:
         os.remove(os.path.join(app.config['UPLOAD_FOLDER'],temp_name))
-    # os.system('copy hhh.txt mmm.txt') # this executes in command line !
-    return render_template("index.html", test="done")
-    return send_from_directory(app.config['UPLOAD_FOLDER'], "subscribers.accdb", as_attachment=True)
+    return send_from_directory(app.config['DB_FOLDER'], "subscribers.accdb", as_attachment=True)
 
 
 if __name__ == "__main__":

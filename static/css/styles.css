@@ -1,0 +1,11 @@
+#user-message{
+    color: rgb(27, 156, 214);
+}
+
+#submit-button{
+    background-color: rgb(247, 84, 86);
+}
+
+#submit-button:hover{
+    background-color: rgb(226, 32, 37);
+}
