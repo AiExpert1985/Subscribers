@@ -10,8 +10,8 @@ ALLOWED_EXTENSIONS = set(['txt'])
 
 os.system('copy db\subscribers1.accdb db\subscribers.accdb')  # this executes in command line !
 
-# app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db/subscribers.sqlite3'
-app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///db/subscribers.sqlite3'
+# app.config["SQLALCHEMY_DATABASE_URI"] = "access+pyodbc://@subscribers"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy()
