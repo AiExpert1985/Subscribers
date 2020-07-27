@@ -1,45 +1,82 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-	<!-- Manual CSS -->
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
-
 	<title> معلومات المشتركين </title>
 </head>
-
 <body>
-{{test}}
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-12 text-center m-4">
-                <img src="{{url_for('static', filename='img/gis.jpg')}}" width="900px">
-            </div>
-            <form method="POST" enctype="multipart/form-data" action="{{url_for('download')}}" class="mt-5" >
-                <div class="custom-file mb-4 text-center">
-                    <input type="file" class="custom-file-input" id="customFile" name="file[]" multiple="">
-                    <label id="browser-label" class="custom-file-label" for="customFile">... اختيار الملفات </label>
-                    <p id="user-message" class="mt-3"></p>
-                    <img id="loading-img" src="{{url_for('static', filename='img/tenor.gif')}}" width="30px">
-                </div>
-                <button id='submit-button' class="btn btn-danger btn-lg btn-block mt-5" type="submit"> تحميل الملفات </button>
-            </form>
-        </div>
+    <div>
+        <img src="{{url_for('static', filename='img/gis.jpg')}}" width="900px">
     </div>
+    <div>
+        <input type="file" id="inputFile" data-url="{{url_for('download')}}" multiple>
+    </div>
+    <div>
+        <button id="btnUpload">Upload files</button>
+    </div>
+    <script>
+        const inputFile = document.querySelector('#inputFile');
+        const btnUpload = document.querySelector('#btnUpload');
+        btnUpload.addEventListener('click', upload_download);
+        async function upload_download(){
+           const formData = new FormData();
+           for (const file of inputFile.files){
+               formData.append('file[]', file);
+           }
+           try{
+                let response = await fetch(inputFile.dataset.url,
+                                    {
+                                        method: 'post',
+                                        body: formData
+                                    });
+                let blob = await response.blob();
+                downloadBlob(blob, 'المشتركين.accdb')
+           }
+           catch(err) {
+               console.log(err);
+           }
+        }
+        function downloadBlob(blob, filename) {
+          // Create an object URL for the blob object
+          const url = URL.createObjectURL(blob);
 
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<!--	<script type="text/javascript" src="{{url_for('static', filename='js/jquery.min.js')}}"></script>-->
-<!--	<script type="text/javascript" src="{{url_for('static', filename='js/popper.min.js')}}"></script>-->
-<!--	<script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>-->
+          // Create a new anchor element
+          const a = document.createElement('a');
 
-    <!-- Manual JavaScript -->
+          // Set the href and download attributes for the anchor element
+          // You can optionally set other attributes like `title`, etc
+          // Especially, if the anchor element will be attached to the DOM
+          a.href = url;
+          a.download = filename || 'download';
+
+          // Click handler that releases the object URL after the element has been clicked
+          // This is required for one-off downloads of the blob content
+          const clickHandler = () => {
+            setTimeout(() => {
+              URL.revokeObjectURL(url);
+              this.removeEventListener('click', clickHandler);
+            }, 150);
+          };
+
+          // Add the click event listener on the anchor element
+          // Comment out this line if you don't want a one-off download of the blob content
+          a.addEventListener('click', clickHandler, false);
+
+          // Programmatically trigger a click on the anchor element
+          // Useful if you want the download to happen automatically
+          // Without attaching the anchor element to the DOM
+          // Comment out this line if you don't want an automatic download of the blob content
+          a.click();
+
+          // Return the anchor element
+          // Useful if you want a reference to the element
+          // in order to attach it to the DOM or use it in some other way
+          return a;
+        }
+    </script>
     <script type="text/javascript" src="{{url_for('static', filename='js/script.js')}}"></script>
-
 </body>
 </html>
 
